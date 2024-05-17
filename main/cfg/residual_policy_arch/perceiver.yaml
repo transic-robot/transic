@@ -1,0 +1,43 @@
+# @package _global_
+
+bs: 8
+
+arch_name: perceiver_mlp
+module:
+  residual_policy:
+    _target_: transic.residual.policy.PerceiverResidualPolicy
+    point_channels: 3
+    subtract_point_mean: false
+    add_ee_embd: true
+    ee_embd_dim: 128
+    set_xf_hidden_dim: 256
+    set_xf_num_heads: 8
+    set_xf_num_queries: 8
+    set_xf_pool_type: concat
+    set_xf_layer_norm: false
+    prop_input_dim: 29
+    robot_policy_output_dim: 7
+    include_robot_policy_gripper_action_input: true
+    robot_policy_gripper_action_embd_dim: 64
+    feature_fusion_hidden_depth: 1
+    feature_fusion_hidden_dim: 512
+    feature_fusion_output_dim: 512
+    feature_fusion_activation: "relu"
+    feature_fusion_add_input_activation: false
+    feature_fusion_add_output_activation: false
+    action_dim: 8
+    action_net_gmm_n_modes: 5
+    action_net_hidden_dim: 128
+    action_net_hidden_depth: 3
+    action_net_activation: "relu"
+    intervention_head_hidden_dim: 128
+    intervention_head_hidden_depth: 3
+    intervention_head_activation: "relu"
+    deterministic_inference: true
+    gmm_low_noise_eval: true
+    update_intervention_head_only: false
+    ckpt_path_if_update_intervention_head_only: null
+
+data_module:
+  ctx_len: 20  # this is not required by the mlp policy, but just for consistency
+  variable_len_pcd_handle_strategy: "pad"  # for set transformer, we can use full PCD

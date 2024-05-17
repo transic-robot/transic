@@ -1,0 +1,13 @@
+# @package _global_
+
+module:
+  # ====== pcd sampling ======
+  pcd_downsample_N: 1000
+  include_robot_gripper_action_input: false
+  learn_gripper_action: false
+  residual_policy:
+    include_robot_policy_gripper_action_input: false
+    action_dim: 7
+
+data_module:
+  include_grasp_action: false

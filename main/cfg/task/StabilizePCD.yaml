@@ -1,0 +1,115 @@
+# used to create the object
+name: StabilizePCD
+
+physics_engine: ${..physics_engine}
+seed: ${..seed}
+
+# if given, will override the device setting in gym. 
+env:
+  numEnvs: ${resolve_default:768,${...num_envs}}
+  episodeLength: 100
+
+  furniture: "one_leg"
+
+  successWeight: 10.0
+  failureWeight: 0.0
+  qdPenalty: 1e-3
+  actionPenalty: 1e-5
+
+  pcdMaskRatio: null
+  pcdN: 768
+
+  clipObservations: 5.0
+  clipActions: 1.0
+
+  frankaDofNoise: 0.25
+
+  aggregateMode: 3
+
+  actionScale: 1.0
+  useQuatRot: false
+
+  frankaDefaultDofPos: [0.12162008114028396, -0.19826458111314524, -0.01990020486871322, -2.4732269941140346, -0.01307073642274261, 2.30396583422025, 0.8480939705504309, 0.035, 0.035]
+
+  pcAugmentation:
+    enabled: true
+    applyP: 0.4
+    randomTransLow: [-0.04, -0.04, -0.04]
+    randomTransHigh: [0.04, 0.04, 0.04]
+
+    jitterRatio: 0.1
+    jitterSigma: 0.01
+    jitterHigh: 0.015
+    jitterLow: -0.015
+
+  propObsDim: 29
+  obsKeys:
+    - q
+    - cos_q
+    - sin_q
+    - eef_pos
+    - eef_quat
+    - gripper_width
+
+  privilegedObsDim: 145
+  privilegedObsKeys:
+    - square_table_top_pos
+    - square_table_top_rot
+    - square_table_top_vel
+    - square_table_leg1_pos
+    - square_table_leg1_rot
+    - square_table_leg1_vel
+    - square_table_leg2_pos
+    - square_table_leg2_rot
+    - square_table_leg2_vel
+    - square_table_leg3_pos
+    - square_table_leg3_rot
+    - square_table_leg3_vel
+    - square_table_leg4_pos
+    - square_table_leg4_rot
+    - square_table_leg4_vel
+    - obstacle_front_pos
+    - obstacle_left_pos
+    - obstacle_right_pos
+    - front_wall_cf
+    - left_wall_cf
+    - square_table_top_cf
+    - square_table_leg1_cf
+    - square_table_leg2_cf
+    - square_table_leg3_cf
+    - square_table_leg4_cf
+    - eef_vel
+    - eef_lf_pos
+    - eef_rf_pos
+    - q
+    - cos_q
+    - sin_q
+    - dq
+    - q_gripper
+
+  # set to True if you use camera sensors in the environment
+  enableCameraSensors: False
+
+sim:
+  dt: 0.01667 # 1/60
+  substeps: 2
+  up_axis: "z"
+  use_gpu_pipeline: ${eq:${...pipeline},"gpu"}
+  gravity: [0.0, 0.0, -9.81]
+  physx:
+    num_threads: ${....num_threads}
+    solver_type: ${....solver_type}
+    use_gpu: ${contains:"cuda",${....sim_device}} # set to False to run on CPU
+    num_position_iterations: 8
+    num_velocity_iterations: 1
+    contact_offset: 0.005
+    rest_offset: 0.0
+    bounce_threshold_velocity: 0.2
+    max_depenetration_velocity: 1000.0
+    default_buffer_size_multiplier: 5.0
+    max_gpu_contact_pairs: 1048576 # 1024*1024
+    num_subscenes: ${....num_subscenes}
+    contact_collection: 1 # 0: CC_NEVER (don't collect contact info), 1: CC_LAST_SUBSTEP (collect only contacts on last substep), 2: CC_ALL_SUBSTEPS (broken - do not use!)
+
+task:
+  randomize: False

@@ -1,0 +1,7 @@
+rl-games==1.6.1
+gym==0.23.1
+hydra-core
+h5py
+dm_tree
+einops
+pytorch_lightning

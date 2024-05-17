@@ -1,0 +1,36 @@
+# @package _global_
+
+arch_name: rnn_pointnet
+rnn_horizon: 5
+module:
+  student_policy:
+    _target_: transic.distillation.policy.RNNPointNetPolicy
+    point_channels: 3
+    subtract_point_mean: false
+    add_ee_embd: true
+    ee_embd_dim: 128
+    pointnet_output_dim: 256
+    pointnet_hidden_dim: 256
+    pointnet_hidden_depth: 2
+    pointnet_activation: "gelu"
+    prop_input_dim: 29
+    feature_fusion_hidden_depth: 1
+    feature_fusion_hidden_dim: 512
+    feature_fusion_output_dim: 512
+    feature_fusion_activation: "relu"
+    feature_fusion_add_input_activation: false
+    feature_fusion_add_output_activation: false
+    rnn_type: "lstm"
+    rnn_n_layers: 2
+    rnn_hidden_dim: 512
+    ctx_len: ${rnn_horizon}
+    action_dim: 8
+    action_net_gmm_n_modes: 5
+    action_net_hidden_dim: 128
+    action_net_hidden_depth: 3
+    action_net_activation: "relu"
+    deterministic_inference: true
+    gmm_low_noise_eval: true
+
+data_module:
+  ctx_len: ${rnn_horizon}

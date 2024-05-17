@@ -1,0 +1,88 @@
+defaults:
+  - _self_  # all below configs will override this conf.yaml
+  - residual_policy_arch: ???
+  - residual_policy_task: ???
+
+run_name: "residual_policy_${arch_name}_lr${lr}_wd${wd}_b${bs}"
+exp_root_dir: ???
+
+arch_name: ???  # filled by residual_policy_arch
+
+# ====== main cfg ======
+seed: -1
+gpus: 1
+lr: 1e-4
+wd: 0.0
+bs: 32
+vbs: 32
+data_dir: ???
+eval_interval: 1
+
+# ------ logging ------
+use_wandb: true
+wandb_project: ???
+wandb_run_name: ${run_name}
+
+# ------ module ------
+module:
+  _target_: transic.residual.module.ResidualPolicyModule
+  include_robot_gripper_action_input: true
+  learn_gripper_action: true
+  # ====== learning ======
+  lr: ${lr}
+  use_cosine_lr: true
+  lr_warmup_steps: 1000
+  lr_cosine_steps: 100000
+  lr_cosine_min: 1e-6
+  optimizer: "adam"
+  weight_decay: ${wd}
+  intervention_pred_loss_weight: 1.0
+  # ====== pcd sampling ======
+  pcd_downsample_N: null
+
+data_module:
+  _target_: transic.residual.data.ResidualDataModule
+  data_dir: ${data_dir}
+  include_grasp_action: true
+  gripper_close_width: 0.025
+  gripper_open_width: 0.08
+  variable_len_pcd_handle_strategy: "truncate"
+  seed: ${seed}
+  batch_size: ${bs}
+  val_batch_size: ${vbs}
+  train_portion: 0.9
+  dataloader_num_workers: 8
+
+trainer:
+  _target_: pytorch_lightning.Trainer
+  accelerator: "gpu"
+  devices: ${gpus}
+  benchmark: true  # enables cudnn.benchmark
+  accumulate_grad_batches: 1
+  num_sanity_val_steps: 0
+  max_epochs: 999999999
+  val_check_interval: null
+  check_val_every_n_epoch: ${eval_interval}
+  gradient_clip_val: 1.0
+  checkpoint:  # this sub-dict will be popped to send to ModelCheckpoint as args
+  - filename: "epoch{epoch}-val_loss{val/loss:.5f}"
+    save_top_k: 5
+    save_last: true
+    monitor: "val/loss"
+    mode: min
+    auto_insert_metric_name: false  # prevent creating subfolder caused by the slash
+  - filename: "epoch{epoch}-val_intervention_acc{val/intervention_acc:.5f}"
+    save_top_k: 3
+    save_last: false
+    monitor: "val/intervention_acc"
+    mode: max
+    auto_insert_metric_name: false  # prevent creating subfolder caused by the slash
+
+# ----------------------------
+
+hydra:
+  job:
+    chdir: true
+  run:
+    dir: "."
+  output_subdir: null

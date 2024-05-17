@@ -1,0 +1,115 @@
+defaults:
+  - config
+  - _self_  # all below configs will override this conf.yaml
+  - distillation_student_arch: ???
+
+run_name: "${arch_name}_lr${lr}_wd${wd}_b${bs}"
+exp_root_dir: ???
+
+arch_name: ???  # filled by distillation_student_arch
+
+# ====== main cfg ======
+seed: -1
+gpus: 1
+lr: 1e-4
+wd: 0.0
+bs: 32
+sim_device: 0
+rl_device: 0
+graphics_device_id: 0
+eval_interval: 5  # every N epochs
+data_path: ???
+matched_scene_data_path: ???
+
+# ------ logging ------
+use_wandb: true
+wandb_project: ???
+wandb_run_name: ${run_name}
+
+# ------ module ------
+module:
+  _target_: transic.distillation.module.DistillationModule
+  # ====== policies ======
+  prop_obs_keys:
+    - q
+    - cos_q
+    - sin_q
+    - eef_pos
+    - eef_quat
+    - gripper_width
+  pcd_sample_points: ${task.env.pcdN}
+  # ====== learning ======
+  lr: ${lr}
+  optimizer: "adam"
+  weight_decay: ${wd}
+  # ====== env creation ======
+  rlg_task_cfg: ${task}
+  num_envs: ${num_envs}
+  display: ${display}
+  # ====== training data augmentation ======
+  enable_pcd_augmentation: true
+  pcd_aug_apply_prob: 0.4
+  pcd_aug_random_trans_high: [0.04, 0.04, 0.04]
+  pcd_aug_random_trans_low: [-0.04, -0.04, -0.04]
+  pcd_aug_jitter_ratio: 0.1
+  pcd_aug_jitter_sigma: 0.01
+  pcd_aug_jitter_low: -0.015
+  pcd_aug_jitter_high: 0.015
+  enable_prop_augmentation: true
+  prop_aug_scale_sigma: 0.1
+  prop_aug_scale_low: -0.3
+  prop_aug_scale_high: 0.3
+  # ====== eval ======
+  n_eval_episodes: 1000
+  # ====== pcd regularization ======
+  enable_pcd_matched_scenes_regularization: true
+  pcd_matched_scenes_reg_weight: 1e-3
+  # ====== device ======
+  sim_device: ${sim_device}
+  rl_device: ${rl_device}
+  graphics_device_id: ${graphics_device_id}
+
+data_module:
+  _target_: transic.distillation.data.DistillationDataModule
+  data_path: ${data_path}
+  matched_scene_data_path: ${matched_scene_data_path}
+  ctx_len: -1  # -1 means not using sequence policy at all
+  skip_first_n_steps: 0
+  sampled_pcd_points: ${task.env.pcdN}
+  refresh_pcd_sampling_idxs_interval: 0.1
+  real_pcd_x_limits: [0.2, 0.7]
+  real_pcd_y_limits: [-0.3, 0.3]
+  real_pcd_z_min: 0.01
+  batch_size: ${bs}
+  dataloader_num_workers: 64
+  seed: ${seed}
+
+trainer:
+  _target_: pytorch_lightning.Trainer
+  accelerator: "gpu"
+  devices: ${gpus}
+  benchmark: true  # enables cudnn.benchmark
+  accumulate_grad_batches: 1
+  num_sanity_val_steps: 0
+  max_epochs: 999999999
+  val_check_interval: null
+  check_val_every_n_epoch: ${eval_interval}
+  gradient_clip_val: 1.0
+  checkpoint:  # this sub-dict will be popped to send to ModelCheckpoint as args
+  - filename: "s{step}-val_sr{val/success_rate:.5f}"
+    save_top_k: 5
+    save_last: true
+    monitor: "val/success_rate"
+    mode: max
+    auto_insert_metric_name: false  # prevent creating subfolder caused by the slash
+
+# ------------- Testing ---------------
+test:
+  ckpt_path: null
+
+hydra:
+  job:
+    chdir: true
+  run:
+    dir: "."
+  output_subdir: null

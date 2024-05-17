@@ -1,0 +1,248 @@
+# used to create the object
+name: ScrewSingle
+
+physics_engine: ${..physics_engine}
+seed: ${..seed}
+
+# if given, will override the device setting in gym.
+env:
+  numEnvs: ${resolve_default:8192,${...num_envs}}
+  episodeLength: 200
+
+  furniture: "table_with_one_leg"
+
+  clipObservations: 5.0
+  clipActions: 1.0
+
+  frankaDofNoise: 0.25
+
+  screwReward: 0.1
+  eefDeviatePenalty: 1e-2
+  successReward: 100.0
+  failurePenalty: 0.0
+
+  initialQ7NoiseLevel: 0.5  # +- 50% noise range
+  initialQ1toQ6NoiseLevel: 0.02  # +- 2% noise range
+
+  aggregateMode: 3
+
+  actionScale: 1.0
+  useQuatRot: false
+
+  frankaDefaultDofPos: [-0.0186, -0.1682,  0.0344, -2.6468,  0.0269,  2.5371,  0.7211,  0.0145, 0.0145]
+
+  # for distillation
+  propDumpInfo:
+    q: 7
+    eef_pos: 3
+    eef_quat: 4
+    gripper_width: 1
+
+  propObsDim: 29
+  obsKeys:
+    - q
+    - cos_q
+    - sin_q
+    - eef_pos
+    - eef_quat
+    - gripper_width
+
+  privilegedObsDim: 74
+  privilegedObsKeys:
+    - square_table_top_pos
+    - square_table_top_rot
+    - square_table_top_vel
+    - square_table_leg4_pos
+    - square_table_leg4_rot
+    - square_table_leg4_vel
+    - eef_vel
+    - ftip_center_pos
+    - obstacle_front_pos
+    - obstacle_left_pos
+    - obstacle_right_pos
+    - front_wall_cf
+    - left_wall_cf
+    - right_wall_cf
+    - square_table_top_cf
+    - square_table_leg4_cf
+    - eef_lf_pos
+    - eef_rf_pos
+    - dq
+
+  # set to True if you use camera sensors in the environment
+  enableCameraSensors: False
+
+sim:
+  dt: 0.01667 # 1/60
+  substeps: 2
+  up_axis: "z"
+  use_gpu_pipeline: ${eq:${...pipeline},"gpu"}
+  gravity: [0.0, 0.0, -9.81]
+  physx:
+    num_threads: ${....num_threads}
+    solver_type: ${....solver_type}
+    use_gpu: ${contains:"cuda",${....sim_device}} # set to False to run on CPU
+    num_position_iterations: 8
+    num_velocity_iterations: 1
+    contact_offset: 0.005
+    rest_offset: 0.0
+    bounce_threshold_velocity: 0.2
+    max_depenetration_velocity: 1000.0
+    default_buffer_size_multiplier: 5.0
+    max_gpu_contact_pairs: 1048576 # 1024*1024
+    num_subscenes: ${....num_subscenes}
+    contact_collection: 0 # 0: CC_NEVER (don't collect contact info), 1: CC_LAST_SUBSTEP (collect only contacts on last substep), 2: CC_ALL_SUBSTEPS (broken - do not use!)
+
+task:
+  randomize: True
+  randomization_params:
+    frequency: 1
+    sim_params:
+      gravity:
+        range: [ 0, 0.4 ]
+        operation: "additive"
+        distribution: "uniform"
+        schedule: "linear"
+        schedule_steps: 100000000
+    actor_params:
+      franka:
+        color: True
+        rigid_body_properties:
+          mass:
+            range: [0.5, 1.5]
+            operation: "scaling"
+            distribution: "uniform"
+            setup_only: True
+            schedule: "linear"
+            schedule_steps: 100000000
+        rigid_shape_properties:
+          friction:
+            num_buckets: 250
+            range: [ 0.7, 1.3 ]
+            operation: "scaling"
+            distribution: "uniform"
+            schedule: "linear"
+            schedule_steps: 100000000
+        dof_properties:
+          lower:
+            range: [ 1.0, 1.010050167084168 ]
+            operation: "scaling"
+            distribution: "loguniform"
+            schedule: "linear"
+            schedule_steps: 100000000
+          upper:
+            range: [ 1.0, 1.010050167084168 ]
+            operation: "scaling"
+            distribution: "loguniform"
+            schedule: "linear"
+            schedule_steps: 100000000
+          stiffness:
+            range: [ 1.0, 1.010050167084168 ]
+            operation: "scaling"
+            distribution: "loguniform"
+            schedule: "linear"
+            schedule_steps: 100000000
+          damping:
+            range: [ 1.0, 1.010050167084168 ]
+            operation: "scaling"
+            distribution: "loguniform"
+            schedule: "linear"
+            schedule_steps: 100000000
+      table:
+        color: True
+        rigid_shape_properties:
+          friction:
+            num_buckets: 250
+            range: [ 0.5, 1.5 ]
+            operation: "scaling"
+            distribution: "uniform"
+            schedule: "linear"
+            schedule_steps: 100000000
+      square_table_leg4:
+        color: True
+        rigid_body_properties:
+          mass:
+            range: [ 0.5, 1.5 ]
+            operation: "scaling"
+            distribution: "uniform"
+            setup_only: True
+            schedule: "linear"
+            schedule_steps: 100000000
+        rigid_shape_properties:
+          friction:
+            num_buckets: 250
+            range: [ 0.5, 1.5 ]
+            operation: "scaling"
+            distribution: "uniform"
+            schedule: "linear"
+            schedule_steps: 100000000
+          rolling_friction:
+            num_buckets: 250
+            range: [ 0.5, 1.5 ]
+            operation: "scaling"
+            distribution: "uniform"
+            schedule: "linear"
+            schedule_steps: 100000000
+          torsion_friction:
+            num_buckets: 250
+            range: [ 0.5, 1.5 ]
+            operation: "scaling"
+            distribution: "uniform"
+            schedule: "linear"
+            schedule_steps: 100000000
+          restitution:
+            range: [0.0, 1.0]
+            operation: "additive"
+            distribution: "uniform"
+            schedule: "linear"
+            schedule_steps: 100000000
+          compliance:
+            range: [0.0, 1.0]
+            operation: "additive"
+            distribution: "uniform"
+            schedule: "linear"
+            schedule_steps: 100000000
+      square_table_top:
+        color: True
+        rigid_body_properties:
+          mass:
+            range: [ 0.5, 1.5 ]
+            operation: "scaling"
+            distribution: "uniform"
+            setup_only: True
+            schedule: "linear"
+            schedule_steps: 100000000
+        rigid_shape_properties:
+          friction:
+            num_buckets: 250
+            range: [ 0.5, 1.5 ]
+            operation: "scaling"
+            distribution: "uniform"
+            schedule: "linear"
+            schedule_steps: 100000000
+          rolling_friction:
+            num_buckets: 250
+            range: [ 0.5, 1.5 ]
+            operation: "scaling"
+            distribution: "uniform"
+            schedule: "linear"
+            schedule_steps: 100000000
+          torsion_friction:
+            num_buckets: 250
+            range: [ 0.5, 1.5 ]
+            operation: "scaling"
+            distribution: "uniform"
+            schedule: "linear"
+            schedule_steps: 100000000
+          restitution:
+            range: [0.0, 1.0]
+            operation: "additive"
+            distribution: "uniform"
+            schedule: "linear"
+            schedule_steps: 100000000
+          compliance:
+            range: [0.0, 1.0]
+            operation: "additive"
+            distribution: "uniform"
+            schedule: "linear"
+            schedule_steps: 100000000
