@@ -136,7 +136,7 @@ python3 main/correction_data_collection.py \
   --base-policy-ckpt-path <path_to_simulation_base_policy_ckpt> \
   --data-save-path <where_to_save_correction_data>
 ```
-We notice that the real-world observation pipeline and real robot controller may differ across different groups. Therefore, you have to fill in the instantiation of these two components in the script. In our case, we use [`deoxys`](https://github.com/UT-Austin-RPL/deoxys_control) as our robot controller.
+We notice that the real-world observation pipeline and real robot controller may differ across different groups. Therefore, you have to fill in the instantiation of these two components in the script. In our case, we use [`deoxys`](https://github.com/UT-Austin-RPL/deoxys_control) as our robot controller. We provide an example of observation pipeline [here](transic/real_world/obs.py).
 
 We provide correction data we collected during the project in the `correction_data` folder from our [🤗Hugging Face data repository](https://huggingface.co/datasets/transic-robot/data).
 
