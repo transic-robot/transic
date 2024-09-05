@@ -9,6 +9,8 @@
 
 <img src="media/SUSig-red.png" width=200>
 
+**Conference on Robot Learning (CoRL) 2024**
+
 [[Website]](https://transic-robot.github.io/)
 [[arXiv]](https://arxiv.org/abs/2405.10315)
 [[PDF]](https://transic-robot.github.io/assets/pdf/transic_paper.pdf)
@@ -185,11 +187,11 @@ We would like to acknowledge the following open-source project that greatly insp
 Our paper is posted on [arXiv](https://arxiv.org/abs/2405.10315). If you find our work useful, please consider citing us! 
 
 ```bibtex
-@article{jiang2024transic,
-  title   = {TRANSIC: Sim-to-Real Policy Transfer by Learning from Online Correction},
-  author  = {Yunfan Jiang and Chen Wang and Ruohan Zhang and Jiajun Wu and Li Fei-Fei},
-  year    = {2024},
-  journal = {arXiv preprint arXiv: Arxiv-2405.10315}
+@inproceedings{jiang2024transic,
+  title     = {TRANSIC: Sim-to-Real Policy Transfer by Learning from Online Correction},
+  author    = {Yunfan Jiang and Chen Wang and Ruohan Zhang and Jiajun Wu and Li Fei-Fei},
+  booktitle = {Conference on Robot Learning},
+  year      = {2024}
 }
 ```
 
