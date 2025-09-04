@@ -1,0 +1,87 @@
+[tool.poetry]
+name = "transic"
+version = "0.0.1"
+description = "research project"
+authors = ["TRANSIC Developers"]
+readme = "README.md"
+keywords = ["Robotics", "Reinforcement Learning", "Machine Learning"]
+license = "Apache-2.0"
+packages = [{include = "transic"}]
+
+[tool.poetry.dependencies]
+python = "^3.8"
+rl-games = {version = "1.6.1", python = "<3.11"}
+gym = "0.23.1"
+hydra-core = "*"
+h5py = "*"
+dm-tree = "*"
+einops = "*"
+pytorch-lightning = "*"
+
+[tool.poetry.group.test.dependencies]
+pytest = "^7.4.0"
+pytest-cov = "^4.1.0"
+pytest-mock = "^3.11.1"
+
+[tool.poetry.scripts]
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.pytest.ini_options]
+minversion = "6.0"
+addopts = [
+    "-ra",
+    "--strict-markers",
+    "--strict-config",
+    "--cov=transic",
+    "--cov-report=term-missing",
+    "--cov-report=html:htmlcov",
+    "--cov-report=xml:coverage.xml",
+    "--cov-fail-under=80"
+]
+testpaths = ["tests"]
+python_files = ["test_*.py", "*_test.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+markers = [
+    "unit: marks tests as unit tests (deselect with '-m \"not unit\"')",
+    "integration: marks tests as integration tests (deselect with '-m \"not integration\"')",
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')"
+]
+
+[tool.coverage.run]
+source = ["transic"]
+omit = [
+    "*/tests/*",
+    "*/conftest.py",
+    "*/__init__.py",
+    "*/setup.py",
+    "*/venv/*",
+    "*/.venv/*",
+    "*/env/*",
+    "*/.env/*"
+]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "if self.debug:",
+    "if settings.DEBUG",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if 0:",
+    "if __name__ == .__main__.:",
+    "class .*\\bProtocol\\):",
+    "@(abc\\.)?abstractmethod"
+]
+show_missing = true
+precision = 2
+
+[tool.coverage.html]
+directory = "htmlcov"
+
+[tool.coverage.xml]
+output = "coverage.xml"
